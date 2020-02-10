@@ -1,0 +1,110 @@
+---
+title: "Data 605 - Assginment 2"
+author: "Amit Kapoor"
+date: "2/8/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 1. Problem set 1
+
+## (1) Show that $A$ $\mathbf{A}^\intercal$ $\neq$ $\mathbf{A}^\intercal$ $A$ in general. (Proof and demonstration.)
+
+### Proof:-
+
+Let A be a m x n matrix. By definition its transpose $\mathbf{A}^\intercal$ will be n x m matrix.
+
+Given the definition of matrix multiplication, multiplying A to $\mathbf{A}^\intercal$ will return a m x m square matrix.
+
+Similarly multiplying $\mathbf{A}^\intercal$ to A will return a n x n matix.
+
+Therefore if m $\neq$ n then result of $A$ $\mathbf{A}^\intercal$ dimension would be different of $\mathbf{A}^\intercal$ $A$
+
+hence $A$ $\mathbf{A}^\intercal$ $\neq$ $\mathbf{A}^\intercal$ $A$
+
+
+### Demonstration:-
+
+$A = \left( \begin{matrix} 1&2&3\\ 4&5&6 \end{matrix} \right)$
+$\mathbf{A}^\intercal$ = $\left( \begin{matrix} 1&4\\ 2&5\\ 3&6 \end{matrix} \right)$
+
+$A$ $\mathbf{A}^\intercal$ = $\left( \begin{matrix} 1&2&3\\ 4&5&6 \end{matrix} \right)$ x $\left( \begin{matrix} 1&4\\ 2&5\\ 3&6 \end{matrix} \right)$ = $\left( \begin{matrix} 14&32\\ 32&77 \end{matrix} \right)$
+
+$\mathbf{A}^\intercal$ $A$ = $\left( \begin{matrix} 1&4\\ 2&5\\ 3&6 \end{matrix} \right)$ x $\left( \begin{matrix} 1&2&3\\ 4&5&6 \end{matrix} \right)$ = $\left( \begin{matrix} 17&22&27\\ 22&29&36\\ 27&36&45 \end{matrix} \right)$
+
+hence $A$ $\mathbf{A}^\intercal$ $\neq$ $\mathbf{A}^\intercal$ $A$
+
+## (2) For a special type of square matrix A, we get $A$ $\mathbf{A}^\intercal$ $\neq$ $\mathbf{A}^\intercal$ $A$. Under what conditions could this be true? (Hint: The Identity matrix I is an example of such a matrix).
+
+For symmetric matrix $A$ = $\mathbf{A}^\intercal$ then $A$ $\mathbf{A}^\intercal$ = $\mathbf{A}^\intercal$ $A$
+
+matrix A is symmetric if $a_{ij}$ = $a_{ji}$ for all i,j
+
+### Example:-
+
+A = $\left( \begin{matrix} 1&2&3\\ 2&3&4 \\ 3&4&7 \end{matrix} \right)$
+$\mathbf{A}^\intercal$ = $\left( \begin{matrix} 1&2&3\\ 2&3&4 \\ 3&4&7 \end{matrix} \right)$
+
+$A$ $\mathbf{A}^\intercal$ = $\mathbf{A}^\intercal$ $A$ = $\left( \begin{matrix} 1&2&3\\ 2&3&4 \\ 3&4&7 \end{matrix} \right)$ x $\left( \begin{matrix} 1&2&3\\ 2&3&4 \\ 3&4&7 \end{matrix} \right)$ = $\left( \begin{matrix} 14&20&32\\ 20&29&46 \\ 3&46&74 \end{matrix} \right)$
+
+
+# 1. Problem set 2
+
+## Matrix factorization is a very important problem. There are supercomputers built just to do matrix factorizations. Every second you are on an airplane, matrices are being factorized. Radars that track flights use a technique called Kalman filtering. At the heart of Kalman Filtering is a Matrix Factorization operation. Kalman Filters are solving linear systems of equations when they track your flight using radars.
+
+## Write an R function to factorize a square matrix A into LU or LDU, whichever you prefer.
+
+```{r lu-function, echo=TRUE}
+
+library(matrixcalc)
+
+LU_factorization <- function(A) {
+  
+  # To check first if given matrix is a square matrix
+  if(is.square.matrix(A) == FALSE) {
+    return("Only square matrix is allowed here.")
+  }
+  
+  U <- A
+  n <- dim(A)[1]
+  # identity matrix
+  L <- diag(n)  
+  
+  if(n==1){
+    return(list(L,U))
+  }
+  
+  for(i in 2:n){
+    for(j in 1:(i-1)) {
+      m <- -U[i,j] / U[j,j]
+      U[i,] <- m * U[j,] + U[i,]
+      L[i,j] <- -m
+    }
+  }
+  return(list(L,U))
+}
+```
+
+
+
+
+```{r matrix-to-test, echo=TRUE}
+A <- matrix(c(1,2,3,
+              4,5,6,
+              7,8,9), byrow = T, ncol = 3)
+A
+```
+
+```{r test-lu-function, echo=TRUE}
+lu <- LU_factorization(A)
+lu
+```
+
+
+
