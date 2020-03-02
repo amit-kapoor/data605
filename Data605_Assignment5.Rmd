@@ -1,0 +1,114 @@
+---
+title: "Data605_Assignment5"
+author: "Amit Kapoor"
+date: "2/26/2020"
+output:
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Choose independently two numbers B and C at random from the interval [0, 1] with uniform density. Prove that B and C are proper probability distributions. Note that the point (B,C) is then chosen at random in the unit square.
+
+```{r B-C, echo=TRUE}
+set.seed(67)
+n <- 10000
+B <- runif(n, min = 0, max = 1)
+C <- runif(n, min = 0, max = 1)
+```
+
+
+```{r min-max-B, echo=TRUE}
+cat("min(B)->", format(min(B), scientific = F), "max(B)->",max(B))
+```
+
+
+```{r min-max-C, echo=TRUE}
+cat("min(c)->", format(min(C), scientific = F), "max(C)->",max(C))
+```
+
+
+```{r hist-B, echo=TRUE}
+
+# skewness of B
+hist(B, probability = T, main = 'B histogram')
+```
+
+```{r hist-C, echo=TRUE}
+
+# skewness of C
+hist(C, probability = T, main = 'C histogram')
+```
+
+Since the bins of both the histograms are evenly distributed, we can conclude B & C are proper probability distributions.
+
+
+
+
+## Find the probability that 
+
+### B+C < 1/2
+
+
+
+```{r prob-1, echo=TRUE}
+
+# The probability of B+C less than 1/2 is
+a <- sum((B+C) < 0.5) / n
+print(paste("The probability of B+C less than 1/2 is",a))
+```
+
+
+
+### BC < 1/2
+
+```{r prob-2, echo=TRUE}
+
+# The probability of B*C less than 1/2 is
+b <- sum((B*C) < 0.5) / n
+print(paste("The probability of BC less than 1/2 is",b))
+```
+
+
+### |B-C| < 1/2
+
+```{r prob-3, echo=TRUE}
+
+# The probability of |B-C| less than 1/2 is
+c <- sum(abs(B-C) < 0.5) / n
+print(paste("The probability of |B,C| less than 1/2 is",c))
+```
+
+
+
+### max{B,C} < 1/2
+
+
+```{r prob-4, echo=TRUE}
+
+# The probability of max{B,C} less than 1/2 is
+e <- sum(pmax(B,C) < 0.5) / n
+print(paste("The probability of max{B,C} less than 1/2 is",e))
+```
+
+
+
+### min{B,C} < 1/2
+
+```{r prob-5, echo=TRUE}
+
+# The probability of min{B,C} less than 1/2 is
+f <- sum(pmin(B,C) < 0.5) / n
+print(paste("The probability of min{B,C} less than 1/2 is",f))
+```
+
+
+
+
