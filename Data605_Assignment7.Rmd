@@ -1,0 +1,193 @@
+---
+title: "Data605_Assignment7"
+author: "Amit Kapoor"
+date: "3/11/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1. Let X1, X2, . . . , Xn be n mutually independent random variables, each of which is uniformly distributed on the integers from 1 to k. Let Y denote the minimum of the Xi’s. Find the distribution of Y.
+
+Given Y denote the minimum of the Xi’s. 
+
+P(Y) = min(X1, X2, X3, ..... Xn)
+
+Assuming each Xi has k possibilities: 1,2,3,....k, then total number of assignments would be $k^{n}$. 
+The number of ways of getting X = 1 is k^n - (k - 1)^n / k^n, since k^n is the total number of possibilities and (k-1)^n is all of the options where none of the Xi’s are equal to 1.
+
+P(X=1) = $\frac{k^{n} - (k-1)^{n}}{k^{n}}$
+
+Generalizing
+P(X=2) = $\frac{(k-2+1)^{n} - (k-2)^{n}}{k^{n}}$
+
+P(X=3) = $\frac{(k-3+1)^{n} - (k-3)^{n}}{k^{n}}$
+
+.....
+
+P(X=t) = $\frac{(k-t+1)^{n} - (k-t)^{n}}{k^{n}}$
+
+
+
+## 2. Your organization owns a copier (future lawyers, etc.) or MRI (future doctors). This machine has a manufacturer’s expected lifetime of 10 years. This means that we expect one failure every ten years. (Include the probability statements and R Code for each part.).
+
+
+### a. What is the probability that the machine will fail after 8 years?. Provide also the expected value and standard deviation. Model as a geometric. (Hint: the probability is equivalent to not failing during the first 8 years..)
+
+Geometric Distribution
+P(T=n) = $q^{n-1}*p$
+
+
+
+```{r prob-geometric, eval=TRUE}
+# probability of one failure every ten years
+p_fail <- 1/10
+
+# probability of not being failed
+p_no_fail <- 1-p_fail
+
+# 8 years
+n <- 8
+
+# probability that the machine will fail after 8 years
+p_geom <- 1 - pgeom(n-1, p_fail)
+p_geom
+```
+
+
+```{r geom-exp, echo=TRUE}
+
+#Expected Value of being failed
+exp_val_geom <- 1/p_fail
+
+exp_val_geom
+```
+
+
+```{r geom-sd, echo=TRUE}
+#Std deviation
+sd_geom <- sqrt(p_no_fail/(p_fail^2))
+
+sd_geom
+```
+
+
+
+### b. What is the probability that the machine will fail after 8 years?. Provide also the expected value and standard deviation. Model as an exponential.
+
+Exponential Distribution
+P(X $\leqslant$ x) = 1 – $e^{–mx}$ where m is decay parameter. 
+
+```{r prob-expo, eval=TRUE}
+
+lambda <- 1/10
+
+# probability that the machine will fail after 8 years
+p_expo <- 1 - pexp(n, lambda)
+p_expo
+```
+
+
+```{r expo-exp, echo=TRUE}
+
+#Expected Value of being failed
+exp_val_expo <- 1/lambda
+
+exp_val_expo
+```
+
+
+```{r expo-sd, echo=TRUE}
+#Std deviation
+sd_expo <- sqrt(1/(lambda^2))
+
+sd_expo
+```
+
+### c. What is the probability that the machine will fail after 8 years?. Provide also the expected value and standard deviation. Model as a binomial. (Hint: 0 success in 8 years)
+
+Binomial Distribution
+b(n, p, k) = ${n \choose k}$ * $p^{k}$ * $q^{n-k}$ 
+where q = 1-p
+
+```{r prob-binomial,, eval=TRUE}
+n <- 8
+p <- 1/10
+q <- 1-p
+k <- 0 # 0 success in 8 years
+
+# probability that the machine will fail after 8 years
+p_bino <- dbinom(k, n, p)
+p_bino
+```
+
+
+```{r bino-exp, echo=TRUE}
+
+#Expected Value of being failed
+exp_val_bino <- n*p
+
+exp_val_bino
+```
+
+
+```{r bino-sd, echo=TRUE}
+#Std deviation
+sd_bino <- sqrt(n*p*q)
+
+sd_bino
+```
+
+### d. What is the probability that the machine will fail after 8 years?. Provide also the expected value and standard deviation. Model as a Poisson.
+
+Poisson Dstribution
+P(X=k) = $e^{- \lambda }$ * $\frac{\lambda ^{k}}{k!}$
+
+
+```{r prob-poisson, eval=TRUE}
+lambda <- 8/10
+k <- 0
+
+# probability that the machine will fail after 8 years
+p_pois <- ppois(k, lambda=lambda)
+p_pois
+```
+
+
+```{r pois-exp, echo=TRUE}
+
+#Expected Value of being failed
+exp_val_pois <- lambda
+
+exp_val_pois
+```
+
+
+```{r pois-sd, echo=TRUE}
+#Std deviation
+sd_pois <- sqrt(lambda)
+
+sd_pois
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
