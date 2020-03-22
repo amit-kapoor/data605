@@ -1,0 +1,133 @@
+---
+title: "Data605 Assignment8"
+author: "Amit Kapoor"
+date: "3/17/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 11. A company buys 100 lightbulbs, each of which has an exponential lifetime of 1000 hours. What is the expected time for the first of these bulbs to burn out?
+
+The density of minimum value among n independent random variables with an exponential density has mean $\mu$/n.
+
+
+```{r exp-time, echo=TRUE}
+mu <- 1000
+n <- 100
+
+exp_time <- mu/n 
+exp_time
+```
+
+
+
+## 14. Assume that X1 and X2 are independent random variables, each having an exponential density with parameter $\lambda$. Show that Z = X1-X2 has density
+
+$f_{z}$(z) = (1/2) $\lambda$ $e^{-\lambda |z|}$
+
+$f_{z}$(z) = (1/2) $\lambda$ $e^{-\lambda |z|}$ can be written as 
+
+
+\begin{equation}
+  f_{z}(z)=\begin{cases}
+    (1/2) \lambda e^{-\lambda z}, & \text{if $z \geq 0$}.\\
+    (1/2) \lambda e^{\lambda z}, & \text{otherwise}.
+  \end{cases}
+\end{equation}
+
+exponential density function is defined as 
+
+\begin{equation}
+  f(x)=\begin{cases}
+    (1/2) \lambda e^{-\lambda x}, & \text{if $x \geq 0$}.\\
+    0, & \text{otherwise}.
+  \end{cases}
+\end{equation}
+
+In this case Z = X1-X2
+
+$f_{z}$(z)= $f_{x1+(-x2)}$(z) 
+          = $\int_{-\infty}^\infty$ $f_{x1}(x1)$ $f_{-x2}(z-x1)$ dx1
+          = $\int_{-\infty}^\infty$ $\lambda e^{-\lambda x1}$ $\lambda e^{-\lambda (x1-z)}$ dx1
+          = $\int_{-\infty}^\infty$ $\lambda^{2}$ $e^{\lambda (z-2x1)}$ dx1
+          
+for $z \geq 0$ 
+
+$f_{z}$(z)= = $\int_{z}^\infty$ $\lambda^{2}$ $e^{\lambda (z-2x1)}$ dx1 = (1/2) $\lambda e^{-\lambda z}$
+          
+for z < 0 
+
+$f_{z}$(z)= = $\int_{0}^\infty$ $\lambda^{2}$ $e^{\lambda (z-2x1)}$ dx1 = (1/2) $\lambda e^{\lambda z}$
+
+After merging these two we will have 
+
+\begin{equation}
+  f_{z}(z)=\begin{cases}
+    (1/2) \lambda e^{-\lambda z}, & \text{if $z \geq 0$}.\\
+    (1/2) \lambda e^{\lambda z}, & \text{otherwise}.
+  \end{cases}
+\end{equation}
+
+
+
+Reference https://www.youtube.com/watch?v=f8Nli1AfygM
+
+## 1. Let X be a continuous random variable with mean $\mu$=10 and variance $\sigma^{2}$=100/3. Using Chebyshev’s Inequality, find an upper bound for the following probabilities
+
+
+Chebyshev Inequality
+
+P(|x-$\mu$|$\geq e$) $\leq$ $\frac {\sigma ^2}{e^2}$
+
+(a) P(|X-10| $\geqslant$ 2)
+
+
+```{r 1-a, echo=TRUE}
+var <- 100/3
+e <- 2
+round(var/e^2, 4)
+```
+
+In this case upper bound would be 1 as probability can't be greater than 1.
+
+(b) P(|X-10| $\geqslant$ 5)
+
+```{r 1-e, echo=TRUE}
+e <- 5
+round(var/e^2, 4)
+```
+
+In this case upper bound would be 1 as probability can't be greater than 1.
+
+(c) P(|X-10| $\geqslant$ 9)
+
+```{r 1-c, echo=TRUE}
+e <- 9
+round(var/e^2, 4)
+```
+
+(d) P(|X-10| $\geqslant$ 20)
+
+```{r 1-d, echo=TRUE}
+e <- 20
+round(var/e^2, 4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
