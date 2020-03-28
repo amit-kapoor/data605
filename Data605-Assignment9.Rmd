@@ -1,0 +1,123 @@
+---
+title: "Data605 - Assignment9"
+author: "Amit Kapoor"
+date: "3/25/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1. Page 363 #11 The price of one share of stock in the Pilsdorff Beer Company (see Exercise 8.2.12) is given by $Y_n$ on the nth day of the year. Finn observes that the differences $X_n$ = $Y_{n+1}$ - $Y_n$ appear to be independent random variables with a common distribution having mean $\mu$ = 0 and variance $\sigma^2$ = 1/4. If $Y_1$ = 100, estimate the probability that $Y_{365}$ is
+
+#### (a) $\geq$ 100.
+
+```{r a, echo=TRUE}
+mean <- 0
+var <- 1/4
+pnorm((100-100), mean = mean, sd = sqrt(var*364), lower.tail = FALSE)
+```
+
+
+#### (b) $\geq$ 110.
+
+```{r b, echo=TRUE}
+
+pnorm((110-100), mean = mean, sd = sqrt(var*364), lower.tail = FALSE)
+```
+
+#### (c) $\geq$ 120.
+
+```{r c, echo=TRUE}
+
+pnorm((120-100), mean = mean, sd = sqrt(var*364), lower.tail = FALSE)
+```
+
+
+
+
+### 2. Calculate the expected value and variance of the binomial distribution using the moment generating function.
+
+Moment Generating Functions is literally the function that generates the moments i.e. E(X), E($X^2$)..
+In this case we will find out the first and second derivative to get the expected value and variance.
+
+
+#### Binomial distribution
+
+
+
+$$g(t)=\sum _{ j=0 }^{ n }{ { e }^{ tj } } (n!/(n-j)!j!){ p }^{ j }{ q }^{ n-j }$$
+$$g(t)=\sum _{ j=0 }^{ n }{ (n!/(n-j)!j!) } { { (pe }^{ t }) }^{ j }{ q }^{ n-j }$$
+$$g(t)={ ({ pe }^{ t }+q) }^{ n }$$
+
+First Derivative:
+
+$$g'(t)=n{ ({ pe }^{ t }+q) }^{ n-1 }{ pe }^{ t }$$
+
+$$g'(0)={ n(p+q) }^{ n-1 }p=np$$
+
+$$\mu ={ \mu  }_{ 1 }=g'(0)=np$$
+
+
+
+Second Derivative:
+
+$$g''(t)=n(n-1)({ pe }^{ t }+q){ ({ pe }^{ t }) }^{ 2 }+n{ ({ pe }^{ t }+q) }^{ n }{ pe }^{ t }  $$
+
+$$g''(0)=\quad { n(n-1)(p+q) }^{ n-1 }{ p }^{ 2 }+{ n(p+q) }^{ n }p$$
+
+$$g''(0)=n(n-1){ p }^{ 2 }+np$$
+
+
+
+$${ \sigma  }^{ 2 }={ \mu  }_{ 2 }-{ \mu  }_{ 1 }^{ 2 }1=g''(0)-{ g'(0) }^{ 2 }\\ { \sigma  }^{ 2 }=n(n-1){ p }^{ 2 }+np-{ (np) }^{ 2 }\\ { \sigma  }^{ 2 }=np[(n-1)p+1-np]\\ { \sigma  }^{ 2 }=np[(np-p)+1-np]$$
+
+$${ \sigma  }^{ 2 }=np[1-p]$$
+
+$${ \sigma  }^{ 2 }=npq$$
+
+### 3. Calculate the expected value and variance of the exponential distribution using the moment generating function.
+
+
+#### Exponential distribution
+
+
+The exponential distribution probability density function is:
+
+$$\lambda { e }^{ -\lambda x }$$
+Moment generating function for the binomial distribution is:
+
+$$g(t)=\frac { \lambda }{ \lambda-t } \quad for\quad t<\lambda$$
+
+First Derivative,
+
+$$g'(t)=\frac {\lambda }{ { (\lambda-t) }^{ 2 } } $$
+To get mean by evaluating for t=0,
+
+$$g'(0)=\frac { 1 }{\lambda} $$
+
+
+Second Derivative,
+
+$$g''(t)=\frac { 2 \lambda}{ (\lambda-t)^{ 3 } } $$
+To get variance, by evaluating for t=0,
+
+$$g''(0)=\frac {2}{\lambda^2} $$
+
+variance is
+
+$${ \mu  }^{ 2 }-{ \mu  }_{ 1 }^{ 2 }=\frac { 2 }{ { \lambda  }^{ 2 } } -{ (\frac { 1 }{ \lambda  } ) }^{ 2 }=\frac { 2 }{ \lambda ^{ 2 } } -\frac { 1 }{ \lambda ^{ 2 } } =\frac { 1 }{ \lambda ^{ 2 } }  $$
+
+
+
+#### Reference
+
+https://towardsdatascience.com/moment-generating-function-explained-27821a739035
+
+
+
+
+
