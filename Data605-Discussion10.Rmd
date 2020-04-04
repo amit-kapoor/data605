@@ -1,0 +1,97 @@
+---
+title: "Data605 - Discussion10"
+author: "Amit Kapoor"
+date: "3/31/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Page 414 Ex 7.
+
+Find the matrices $P^2$, $P^3$, $P^4$, and $P^n$ for the Markov chain determined by the transition matrix P = $A = \left( \begin{matrix} 1&0 \\ 0&1 \end{matrix} \right)$. Do the same for the transition matrix P = $A = \left( \begin{matrix} 0&1 \\ 1&0 \end{matrix} \right)$. Interpret what happens in each of these processes.
+
+```{r expm, echo=TRUE}
+
+# Computation of the matrix exponential
+library(expm)
+```
+
+
+
+```{r}
+
+v1 <- c(1,0,0,1)
+P1 <- matrix(v1, nrow = 2)
+P1
+```
+
+
+```{r}
+P1%^%2
+```
+
+
+```{r}
+P1%^%3
+```
+
+
+
+
+```{r}
+P1%^%4
+```
+
+Hence if P = $\left( \begin{matrix} 1&0 \\ 0&1 \end{matrix} \right)$ then $P^n$ = P = $\left( \begin{matrix} 1&0 \\ 0&1 \end{matrix} \right)$  as P is an identity matrix. It would be true for any size identity matrix.
+
+
+
+
+```{r}
+
+v2 <- c(0,1,1,0)
+P2 <- matrix(v2, nrow = 2)
+P2
+```
+
+
+```{r}
+P2%^%2
+```
+
+```{r}
+P2%^%3
+```
+
+
+
+```{r}
+P2%^%4
+```
+
+
+
+```{r}
+P2%^%5
+```
+
+
+
+Hence if P = $\left( \begin{matrix} 0&1 \\ 1&0 \end{matrix} \right)$ then 
+
+if n is even, $P^n$ = $\left( \begin{matrix} 1&0 \\ 0&1 \end{matrix} \right)$  
+
+if n is odd, $P^n$ = $\left( \begin{matrix} 0&1 \\ 1&0 \end{matrix} \right)$  
+
+
+
+
+
+
+
