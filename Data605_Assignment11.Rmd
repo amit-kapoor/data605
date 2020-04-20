@@ -1,0 +1,151 @@
+---
+title: "Data605 - Homework11"
+author: "Amit Kapoor"
+date: "4/16/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Using the “cars” dataset in R, build a linear model for stopping distance as a function of speed and replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and residual analysis.)
+
+```{r}
+library(dplyr)
+library(GGally)
+```
+
+#### Loading cars dataset and getting a glimpse of data in it.
+
+```{r glimpse-cars, eval=TRUE}
+glimpse(cars)
+```
+
+
+```{r summary, eval=TRUE}
+summary(cars)
+```
+
+
+
+```{r dimension, eval=TRUE}
+dim(cars)
+```
+
+
+
+#### Cars dataset has 50 observations with 2 variables (dist & speed). Now we will explore the relationship between these 2 variables.
+
+#### In the next step, we will use ggpairs() function from the GGally package that allows to build a scatterplot matrix. It draws scatterplots of each pair of numeric variable on the left part of the figure. The right part has Pearson correlation and the diagonal contains variable distribution.
+
+
+
+```{r ggpairs, eval=TRUE}
+ggpairs(data = cars, title = "Cars Data")
+```
+
+
+#### Lets see correlation matrix plot using ggcorr(). The ggcorr() function visualizes the correlation of each pair of variable as a square. As shown below it shows strong correlation.
+
+
+```{r ggcorr, eval=TRUE}
+ggcorr(data = cars, label = TRUE)
+```
+
+
+#### The correlation coefficients provide information about the relationship between 2 variables; the closer it's value to 1, the stronger the relationship is. In this case the correlation between both variables (speed and dist ) is quiet strong. The scatter plots shown above visualize the relationships between the two.
+
+#### Lets form the hypothesis.
+
+$H_0$ : Speed and Dist are not related to each other.
+$H_A$ : Speed and Dist have some relationship.
+
+```{r lm, eval=TRUE}
+m_dist_spd <- lm(dist ~ speed, data = cars)
+
+# model summary
+summary(m_dist_spd)
+```
+
+#### The intercept here is -17.5791  which is expected car distance having speed as 0. It's obvious we cant think of a car having -ve distance traveled. The slope shows that for each additional increase of speed, the distance travelled by car increases by a factor of 3.9324. Std. Error shows the average variation of the estimated coefficients from the actual average of response variable.
+
+#### A p-value is used in hypothesis testing to support or reject the null hypothesis. The smaller the p-value, the stronger the evidence that one should reject the null hypothesis. In our case it is less than 0.05 so we reject Null hypothesis described above.
+
+#### The R2 value is a measure for how close our data is to the linear regression model. In this case the R2 value is 0.6511 which means our data fits the linear regression model. Simialrly higher F-statistic value indicates close linear relationship.
+
+#### Below is the plot between speed and dist relationship.
+
+```{r lm-plot, eval=TRUE}
+
+# draw model
+m_dist_spd %>% 
+  ggplot(aes(speed, dist)) +
+  geom_point() +
+  geom_smooth(method = lm, se = F)
+```
+
+
+#### Residuals describes about how well our model fits our data. The residuals should have a pretty symmetrical distribution around zero. Lets visualize residuals in our case.
+
+
+```{r residuals, eval=TRUE}
+
+# residuals
+m_dist_spd %>% 
+  ggplot(aes(fitted(m_dist_spd), resid(m_dist_spd))) +
+  geom_point() +
+  geom_smooth(method = lm, se =F) +
+  labs(title = "Residual Analysis",
+       x = "Fitted Line", y = "Residuals") +
+  theme_minimal()
+```
+
+
+#### Below is the histogram plot for residuals.
+
+```{r res-hist, eval=TRUE}
+
+# residuals histogram
+m_dist_spd %>% 
+  ggplot(aes(m_dist_spd$residuals)) + 
+  geom_histogram(binwidth = 1)
+
+```
+
+
+#### Our residuals look pretty symmetrical around 0, suggesting that our model fits the data well. The histogram plot shows a little left skewness.
+
+#### Fianlly lets draw the QQ plot to compare two probability distributions by plotting their quantiles against each other. Departures from the straight line at the extreme ends of the plot might indicate skewness. In this case it looks quite consistent.
+
+
+```{r qq, eval=TRUE}
+
+# qq plot
+m_dist_spd %>% 
+  ggplot(aes(sample = resid(m_dist_spd))) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot") +
+  theme_minimal()
+```
+
+
+
+### Conclusion
+
+#### As described above, seeing the p-value, R-squared value and all the above graphs we can conclude the model seems good. There could some other factors to further consider which might influence this relationship.
+
+
+
+
+
+
+
+
+
+
+
