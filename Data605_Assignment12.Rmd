@@ -1,0 +1,273 @@
+---
+title: "Data605 - Homework12"
+author: "Amit Kapoor"
+date: "4/22/2020"
+output: 
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(RCurl)
+library(dplyr)
+library(GGally)
+```
+
+
+### Introduction
+
+The who.csv dataset contains real-world data from 2008. The variables included follow.
+
+* Country: name of the country
+* LifeExp: average life expectancy for the country in years
+* InfantSurvival: proportion of those surviving to one year or more
+* Under5Survival: proportion of those surviving to five years or more
+* TBFree: proportion of the population without TB.
+* PropMD: proportion of the population who are MDs
+* PropRN: proportion of the population who are RNs
+* PersExp: mean personal expenditures on healthcare in US dollars at average exchange rate
+* GovtExp: mean government expenditures per capita on healthcare, US dollars at average exchange rate
+* TotExp: sum of personal and government expenditures.  
+
+
+
+```{r read-data, echo=TRUE}
+
+#github URL
+url <- getURL("https://raw.githubusercontent.com/amit-kapoor/data605/master/who.csv")
+# Read csv from github
+who_df <- read.csv(text = url,stringsAsFactors = FALSE)
+# glimpse data
+glimpse(who_df)
+```
+
+
+
+#### 1. Provide a scatterplot of LifeExp~TotExp, and run simple linear regression. Do not transform the variables. Provide and interpret the F statistics, R^2, standard error,and p-values only. Discuss whether the assumptions of simple linear regression met.  
+
+
+```{r ggpair, echo=TRUE}
+who_df2 <- select(who_df, LifeExp, TotExp)
+ggpairs(who_df2)
+```
+
+
+Seeing above plot, we can see that the correleation between LifeExp & TotExp variables is 0.508 that shows weak relationship between them. Scatter lot shows relationship is not linear between these 2 variables.
+
+```{r lm1, echo=TRUE}
+lm1 <- lm(LifeExp~TotExp, data = who_df2)
+summary(lm1)
+```
+
+
+```{r residuals, eval=TRUE}
+
+# residuals
+lm1 %>% 
+  ggplot(aes(fitted(lm1), resid(lm1))) +
+  geom_point() +
+  geom_smooth(method = lm, se =F) +
+  labs(title = "Residual Analysis",
+       x = "Fitted Line", y = "Residuals") +
+  theme_minimal()
+```
+
+```{r res-hist, eval=TRUE}
+
+# residuals histogram
+hist(lm1$residuals)
+```
+
+
+```{r qq, eval=TRUE}
+
+# qq plot
+lm1 %>% 
+  ggplot(aes(sample = resid(lm1))) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot") +
+  theme_minimal()
+```
+
+
+
+* **F-statistic**: This F-statistic describes if there is a relationship between the dependent and independent variables. Generally, a large F-statistic shows a stronger relationship. In this case the value is 65.26 which indiates there is a relation between the variables.
+
+* **$R^{2}$**: The R-squared is a statistical measure of how close the data are to the fitted regression line. $R^{2}$ values are between 0 and 1; where numbers closer to 1 represent well-fitting models. The adjusted $R^{2}$ is to account for the number of independent variables used to make the model. In our case R-squared value is 0.2577 which shows that the models accounts for only 25.77% of varition in the data so it doesnt look to be a good fit. 
+
+* **Residual standard error**: The Residual Standard Error is the average amount that the response (dist) will deviate from the true regression line. In this case it is high.
+
+* **p-value**: It is used for rejecting or accpeting the Null hypothesis. In general we use 0.05 as the cutoff for significance; when p-value is smaller than 0.05, we reject H0. In this case p-value is smaller than 0.05, hence we can reject Null hypothesis. Thus there is some relationship between the 2 variables.
+
+Seeing the residual and QQ plot, it doesnt look a good model.
+
+
+#### 2. Raise life expectancy to the 4.6 power (i.e., LifeExp^4.6). Raise total expenditures to the 0.06 power (nearly a log transform, TotExp^.06). Plot LifeExp^4.6 as a function of TotExp^.06, and r re-run the simple regression model using the transformed variables. Provide and interpret the F statistics, R^2, standard error, and p-values. Which model is "better?"
+
+```{r ggpair-2, echo=TRUE}
+
+LifeExp2 <- who_df$LifeExp^4.6
+TotExp2 <- who_df$TotExp^.06
+# create new data frame
+who_df3 <- data.frame(LifeExp2, TotExp2)
+#glimpse data
+glimpse(who_df3)
+```
+
+
+```{r}
+# pairwise plot
+ggpairs(who_df3)
+```
+
+
+```{r lm-2, echo=TRUE}
+# new model
+lm2 <- lm(LifeExp2~TotExp2, data = who_df3)
+summary(lm2)
+```
+
+
+```{r residuals-2, eval=TRUE}
+
+# residuals
+lm2 %>% 
+  ggplot(aes(fitted(lm2), resid(lm2))) +
+  geom_point() +
+  geom_smooth(method = lm, se =F) +
+  labs(title = "Residual Analysis",
+       x = "Fitted Line", y = "Residuals") +
+  theme_minimal()
+```
+
+```{r res-hist-2}
+# residuals histogram
+hist(lm2$residuals)
+```
+
+
+```{r qq-2, eval=TRUE}
+
+# qq plot
+lm2 %>% 
+  ggplot(aes(sample = resid(lm2))) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot") +
+  theme_minimal()
+```
+
+
+F-statistic is 507.7 now which is better than previous value of 65.26. R-squared is improved to 0.7298 than its previous value of 0.2577. p-value < 2.2e-16 is better too. Residual standard error is 90490000 now.  
+
+Seeing the residuals plot, it appears more normal as the earlier one was left skewed. QQ plot also shows great improvement. Hence this second model (lm2) came out after transformation is an improved model in comparison to model1 (lm1).  
+
+
+####  3. Using the results from 3, forecast life expectancy when TotExp^.06 =1.5. Then forecast life expectancy when TotExp^.06=2.5.
+
+
+```{r eq-lm2, echo=TRUE}
+# y = -736527910 + 620060216 * x
+
+forecast <- function(x) {
+  y <- -736527910 + 620060216 * x
+  y <- y^(1/4.6)
+  return(y)
+}
+
+```
+
+```{r pred-1, echo=TRUE}
+
+#when TotExp^.06 =1.5
+forecast(1.5)
+```
+
+
+```{r pred-2, echo=TRUE}
+
+#when TotExp^.06 =2.5
+forecast(2.5)
+```
+
+
+#### 4. Build the following multiple regression model and interpret the F Statistics, R^2, standard error, and p-values. How good is the model?
+LifeExp = b0+b1 x PropMd + b2 x TotExp +b3 x PropMD x TotExp
+
+Since it is not mentioned which one to pick (question 1 or question 2). So, I choose input from question 1.
+
+```{r lm-3, echo=TRUE}
+# new model
+lm3 <- lm(LifeExp ~ PropMD + TotExp + (PropMD*TotExp), data=who_df)
+summary(lm3)
+```
+
+
+```{r residuals-3, eval=TRUE}
+
+# residuals
+lm3 %>% 
+  ggplot(aes(fitted(lm3), resid(lm3))) +
+  geom_point() +
+  geom_smooth(method = lm, se =F) +
+  labs(title = "Residual Analysis",
+       x = "Fitted Line", y = "Residuals") +
+  theme_minimal()
+```
+
+```{r res-hist-3}
+# residuals histogram
+hist(lm3$residuals)
+```
+
+
+```{r qq-3, eval=TRUE}
+
+# qq plot
+lm3 %>% 
+  ggplot(aes(sample = resid(lm2))) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot") +
+  theme_minimal()
+```
+
+The adj R2 accounts for 0.3471 of the variability of the data, which means that only 34% of the variance in the response variable can be explained by the independent variable. It means that this model too can be improved some transformation as performed in solution 2.
+
+The F-statistic value is quiet less which means that this model is not good for prediction. The p-value indicates that we should reject the null hypothesis, that there is norelationship between the variables.
+
+The residual histogram is left skewed and qq plot is not aligned on edges. This model doesnt appear as good as the one described in solution 2. 
+
+#### 5. Forecast LifeExp when PropMD=.03 and TotExp = 14. Does this forecast seem realistic? Why or why not?
+
+
+```{r lm3-coeff, echo=TRUE}
+coef(lm3)
+```
+
+
+```{r}
+givendata <- data.frame(PropMD=0.03, TotExp=14)
+predict(lm3, givendata, interval="predict")
+```
+
+
+```{r max-lifeexp, echo=TRUE}
+# max average life expectancy
+max(who_df$LifeExp)
+```
+
+
+The prediction is 107.70 years with 95% confidence interval between 84.25 and 131.14. The prediction is completely unrealistic. The highest life expectancy in the data is 83 years and there is nothing in original data to support this prediction. As mentioned in solution 4, this is not a good model.
+
+
+
+
+
+
