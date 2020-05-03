@@ -1,0 +1,162 @@
+---
+title: "Data605 - Homework13"
+author: "Amit Kapoor"
+date: "4/29/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### 1. Use integration by substitution to solve the integral below.
+
+$$\int 4 e^{-7x} dx$$
+
+Let u = -7x then du = -7dx
+
+$$4\int { { e }^{ u } } \frac { du }{ -7 }$$
+$$-\frac { 4 }{ 7 } \int { { e }^{ u } } du$$
+$$-\frac { 4 }{ 7 } { e }^{ u }+\quad constant$$
+since u= -7x
+
+$$-\frac { 4 }{ 7 } { e }^{ -7x }+\quad constant$$
+
+
+
+
+
+
+#### 2. Biologists are treating a pond contaminated with bacteria. The level of contamination is changing at a rate of $\frac{dN}{dt}$ = -$\frac{3150}{t^{4}}-220$ bacteria per cubic centimeter per day, where t is the number of days since treatment began. Find a function N( t ) to estimate the level of contamination if the level after 1 day was 6530 bacteria per cubic centimeter.
+
+
+$$N'(t)= -\frac{3150}{t^{4}}-220$$
+$$N(t)\quad =\quad \int { (\frac { -3150 }{ { t }^{ 4 } } -220)dt } $$
+
+when N=1, then
+
+$$N(1)=1050 - 220 + constant = 6530$$
+$$constant = 5700$$
+
+The function is 
+
+$$N(t) = \frac {1050} { t ^{ 4 }} -220t +5700$$
+
+
+#### 3. Find the total area of the red rectangles in the figure below, where the equation of the line is f(x) = 2x-9.
+
+<CENTER>![](img.png)</CENTER>
+
+
+```{r find-area, echo=TRUE}
+eqn <- function(x) {
+  2*x-9
+}
+
+area <- integrate(f=eqn, lower = 4.5, upper = 8.5)
+area
+```
+
+
+
+#### 4. Find the area of the region bounded by the graphs of the given equations.
+y = x2 - 2x - 2, y = x + 2 
+
+```{r}
+# define two functions f and g
+f <- function(x) {x^2-2*x-2}
+g <- function(x) {x+2}
+
+# draw both functions f and g
+curve(expr=f, from = -5, to = 5)
+curve(expr=g, from = -5, to = 5, add = T)
+```
+
+
+
+```{r intersect-lower, echo=TRUE}
+
+# find lower intersection
+rt <- uniroot(function(x)  f(x) - g(x)  , interval = c(-5,0), tol=0.000001) 
+rt$root
+```
+
+
+```{r intersect-upper, echo=TRUE}
+
+# find upper intersection
+rt <- uniroot(function(x)  f(x) - g(x)  , interval = c(0, 5), tol=0.000001) 
+rt$root
+```
+
+```{r area, echo=TRUE}
+
+# f area between -1 and 1
+f_area <- integrate(f, lower = -1, upper = 4)
+# g area between -1 and 1
+g_area <- integrate(g, lower = -1, upper = 4)
+
+# area in between
+g_area$value - f_area$value
+```
+
+#### 5. A beauty supply store expects to sell 110 flat irons during the next year. It costs $3.75 to store one flat iron for one year. There is a fixed cost of $8.25 for each order. Find the lot size and the number of orders per year that will minimize inventory costs.
+
+Let x be a number of flat irons to order.
+
+yearly storage cost = storage cost per iron * avg number of irons stored = 3.75 * x/2 = 1.875 * x
+
+yearly order cost = cost of each order * num of orders = 8.25 * 110/x= 907.5/x
+
+inv cost = yearly storage cost + yearly ordering cost = 1.8758 * x + 907.5/x = f(x)
+
+To find the minimized value, we would need differentiate and solve for 0.
+
+f'(x) = 0
+
+$$1.875\quad - \quad \frac { 907.5}{ x^{2} } = 0$$
+
+$$x\quad =\quad \sqrt { \frac { 907.5 }{ 1.875 }  } $$
+
+$$ x = 22 $$
+
+##### so number of orders will be 110/22 = 5 orders per year that will minimize inventory costs.
+
+
+
+
+#### 6. Use integration by parts to solve the integral below.
+
+$$ \int { ln(9x).{ x }^{ 6 }dx }  $$
+
+
+$$ \int { uv'dx\quad =\quad uv\quad -\quad \int { u'vdx }  }  $$
+   in this case u=ln(9x) 
+   v'=$x^{6}$
+   
+   $$ \int { ln(9x).{ x }^{ 6 }dx }\quad  = \quad \frac { 1 }{ 7 } ln(9x){ x }^{ 7 }\quad -\quad \frac { 1 }{ 7 } \int { { x }^{ 6 }dx } \quad $$
+   
+   $$ =\quad\quad \frac { 1 }{ 7 } ln(9x){ x }^{ 7 }\quad -\quad \frac { 1 }{ 7 } (\frac { { x }^{ 7 } }{ 7 } )\quad +\quad constant\quad \quad   $$
+$$ = \frac { { x }^{ 7 } }{ 7 } \left[ ln(9x)\quad -\frac { 1 }{ 7 }  \right] \quad +\quad constant\quad \quad $$
+
+
+
+#### 7. Determine whether f ( x ) is a probability density function on the interval [1, $e^{6}$]. If not, determine the value of the definite integral.
+
+f(x) = $\frac{1}{6x}$
+
+
+ $$ \int _{ 1 }^{ { e }^{ 6 } }{ \frac { 1 }{ 6x }  } dx\quad \quad  $$
+ $$ \frac { 1 }{ 6 } \int _{ 1 }^{ { e }^{ 6 } }{ \frac { 1 }{ x }  } dx\quad \quad$$
+ 
+ $$ \frac { 1 }{ 6 } (ln({ e }^{ 6 })\quad -ln(1))\quad $$
+ $$\frac { 1 }{ 6 } (6-0)\quad =\quad 1$$
+The definite integral of the function on interval [1, $e^{6}$] is 1. So it satisfies that function is indeed a probability distribution function.
+
+
+
+
+
+
