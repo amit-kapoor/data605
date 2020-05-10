@@ -1,0 +1,127 @@
+---
+title: "Data607 - Homework14"
+author: "Amit Kapoor"
+date: "5/7/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This week, we'll work out some Taylor Series expansions of popular functions
+
+* f(x) = 1 / (1-x)
+* f(x) = e^x
+* f(x) = ln(1 + x)
+
+For each function, only consider its valid ranges as indicated in the notes when you are
+computing the Taylor Series expansion. Please submit your assignment as a R-Markdown
+document.
+
+Taylor series is defined as 
+
+$$f(x)\quad =\sum _{n=0 }^{\infty}{\frac {f^{n}(a)}{n!}}(x-a)^{n}\quad$$
+    
+### 1. f(x) = 1 / (1-x)
+
+Lets find derivatives,
+
+$$f^0(c) = \frac{1}{(1-c)}$$
+$$f^{'}(c) = \frac{1}{(1-c)^2}$$
+$$f^{''}(c) = \frac{2}{(1-c)^3}$$
+
+$$f^{'''}(c) = \frac{6}{(1-c)^4}$$
+
+$$f^{''''}(c) = \frac{24}{(1-c)^5}$$
+
+As per definition, 
+
+
+$$ f(x) = \frac{1}{(1-c)0!}(x-c)^0+\frac{1}{(1-c)^21!}(x-c)^1+\frac{2}{(1-c)^32!}(x-c)^2+\frac{6}{(1-c)^43!}(x-c)^3+ ...$$
+$$ = \frac{1}{(1-c)}+\frac{1}{(1-c)^2}(x-c)+\frac{2!}{(1-c)^32!}(x-c)^2+\frac{3!}{(1-c)^43!}(x-c)^3+ ...$$
+$$ = \frac{1}{(1-c)}+\frac{1}{(1-c)^2}(x-c)+\frac{1}{(1-c)^3}(x-c)^2+\frac{1}{(1-c)^4}(x-c)^3+ ...$$
+$$ =\sum _{n=0 }^{\infty}\frac {1}{(1-c)^{n+1}}(x-c)^n$$
+
+Using Maclaurin series c = 0,
+
+$$f(x) =\sum _{n=0 }^{\infty}x^n = 1+x+x^2+x^3+x^4+ ..... $$
+
+The series converges in the interval (-1,1)
+
+
+
+### 2. f(x) = e^x
+
+Lets find derivatives,
+
+$$f^0(c) = e^c$$
+$$f^{'}(c) = e^c$$
+$$f^{''}(c) = e^c$$
+$$f^{'''}(c) = e^c$$
+$$f^{''''}(c) = e^c$$
+
+
+As per definition, 
+
+
+$$ f(x) = \frac{e^c}{0!}(x-c)^0+\frac{e^c}{1!}(x-c)^1+\frac{e^c}{2!}(x-c)^2+\frac{e^c}{3!}(x-c)^4+ ...$$
+
+$$ =e^c \sum _{n=0 }^{\infty}\frac {(x-c)^n}{n!}$$
+
+Using Maclaurin series c = 0,
+
+$$f(x) =\sum _{n=0 }^{\infty}\frac {x^n}{n!} = 1+x+\frac{x^2}{2}+\frac{x^3}{6}+\frac{x^4}{24}+ ..... $$
+
+
+Test ratio
+
+$$ \frac {a_{n+1}}{a_n} = \frac {x^{n+1}}{(n+1)!} * \frac {n!}{x^n} = \frac {x}{n+1}$$
+
+
+$$L = \lim_{n\to\infty} \frac {x}{n+1} = 0$$
+
+Hence the series converges for $\forall$ x in the range (-$\infty$, $\infty$)
+
+### 3. f(x) = ln(1 + x)
+
+Lets find derivatives,
+
+$$f^0(c) = ln(1 + c)$$
+
+$$f^{'}(c) = \frac{1}{(c+1)}$$
+
+$$f^{''}(c) = -\frac{1}{(c+1)^2}$$
+
+$$f^{'''}(c) = \frac{2}{(c+1)^3}$$
+
+$$f^{''}(c) = -\frac{6}{(c+1)^4}$$
+
+
+As per definition, 
+
+$$ f(x) = \frac{ln(1+c)}{0!}(x-c)^0+\frac{1}{(c+1)1!}(x-c)^1-\frac{1}{(c+1)^22!}(x-c)^2+\frac{2}{(c+1)^33!}(x-c)^3-\frac{6}{(c+1)^44!}(x-c)^4+ ...$$
+
+$$= ln(1+c)+\frac{1}{(c+1)}(x-c)-\frac{1!}{(c+1)^22*1!}(x-c)^2+\frac{2!}{(c+1)^33*2!}(x-c)^3-\frac{3!}{(c+1)^44*3!}(x-c)^4+ ...$$
+
+$$= ln(1+c)+\frac{1}{(c+1)}(x-c)-\frac{1}{2(c+1)^2}(x-c)^2+\frac{1}{3(c+1)^3}(x-c)^3-\frac{1}{4(c+1)^4}(x-c)^4+ ...$$
+
+$$= ln(1+c)+\sum _{n=0 }^{\infty}(-1)^{n+1}\frac {(x-c)^n}{n(c+1)^n!}$$
+
+Using Maclaurin series c = 0,
+
+$$f(x) =\sum _{n=0 }^{\infty}(-1)^{n+1}\frac {x^n}{n} = x-\frac{x^2}{2}+\frac{x^3}{3}-\frac{x^4}{4}+ ..... $$
+
+Test ratio
+
+$$ \frac {a_{n+1}}{a_n} = \frac {(-1)^{n+1+1}x^{n+1}}{(n+1)} * \frac {n}{(-1)^{n+1}x^{n}} = \frac {-xn}{n+1}$$
+
+$$L = \lim_{n\to\infty} | \frac {-xn}{n+1}| = |x|$$
+
+Hence the series converges for x in the range (-1, 1).
+
+
+
+
