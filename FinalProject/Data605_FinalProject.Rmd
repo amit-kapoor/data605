@@ -1,0 +1,538 @@
+---
+title: "Data605 - Final Project"
+author: "Amit Kapoor"
+date: "5/18/2020"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: vignette
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=TRUE, warning=FALSE, message=FALSE}
+
+# Necessary libraries
+library(ggplot2)
+library(knitr)
+library(tidyverse)
+library(DataExplorer)
+library(GGally)
+library(Matrix)
+library(matrixcalc)
+library(Rmisc)
+library(ggpubr)
+```
+
+
+# Problem 1.
+Using R, generate a random variable X that has 10,000 random uniform numbers from 1 to N, where N can be any number of your choosing greater than or equal to 6.  Then generate a random variable Y that has 10,000 random normal numbers with a mean of $\mu = \sigma = \frac {(N+1)}{2}$.
+
+```{r vars, echo=TRUE}
+# set seed
+set.seed(786)
+
+# define variables
+N <- 15
+mu <- (N+1)/2
+sd <- mu
+
+# X has 10,000 random uniform numbers from 1 to N
+X <- runif(n = 10000, min = 1, max = N)
+# Y has 10,000 random normal numbers
+Y <- rnorm(n = 10000, mean = mu, sd = sd)
+```
+
+
+```{r hist-X, echo=TRUE}
+# Draw histogram for X
+ggplot() +
+geom_histogram(data = data.frame(X), aes(X), bins = 50)
+```
+
+
+```{r hist-Y, echo=TRUE}
+# Draw histogram for Y
+ggplot() +
+geom_histogram(data = data.frame(Y), aes(Y), bins = 50)
+```
+
+
+## Probability.   
+Calculate as a minimum the below probabilities a through c.  Assume the small letter "x" is estimated as the median of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable.  Interpret the meaning of all probabilities.
+
+```{r x-y, echo=TRUE}
+
+# x is estimated as the median of the X variable
+x <- median(X)
+# y is estimated as the 1st quartile of the Y variable
+y <- summary(Y)[2][[1]]
+```
+
+
+### P(X>x | X>y)		
+
+
+```{r a, echo=TRUE}
+sum(X>x & X>y) / sum(X>y)
+```
+
+The probability of X greater than median value of X given that X is greater than first quartile of Y is 0.56.
+
+### P(X>x, Y>y)		
+
+```{r b, echo=TRUE}
+sum(X>x & Y>y) / length(X)
+```
+
+The probability of X greater than median value of X and Y is greater than first quartile of Y is 0.37.
+
+### P(X<x | X>y)				
+
+```{r c, echo=TRUE}
+sum(X<x & X>y) / sum(X>y)
+```
+
+The probability of X less than median value of X given that X is greater than first quartile of Y is 0.438076.
+
+## Marginal and Joint probabilities
+Investigate whether P(X>x and Y>y)=P(X>x)P(Y>y) by building a table and evaluating the marginal and joint probabilities.
+
+
+```{r mar-join, echo=TRUE}
+
+# create table
+table <- c(sum(X<x & Y < y),
+         sum(X < x & Y == y),
+         sum(X < x & Y > y))
+
+table <- rbind(table, 
+             c(sum(X==x & Y < y), 
+               sum(X == x & Y == y), 
+               sum(X == x & Y > y)))
+
+table <- rbind(table, 
+             c(sum(X>x & Y < y), 
+               sum(X > x & Y == y), 
+               sum(X > x & Y > y)))
+
+# col bind
+table <- cbind(table, table[,1] + table[,2] + table[,3])
+# row bind 
+table <- rbind(table, table[1,] + table[2,] + table[3,])
+
+# rename columns
+colnames(table) <- c("Y<y", "Y=y", "Y>y", "Total")
+# rename rows
+rownames(table) <- c("X<x", "X=x", "X>x", "Total")
+
+kable(table)
+```
+
+
+Based on the above table, following are required probabilities which are approx equal.
+
+```{r first, echo=TRUE}
+# P(X>x and Y>y)
+3735 / 10000
+```
+
+
+```{r second, echo=TRUE}
+# P(X>x)P(Y>y)
+(5000/10000) * (7500/10000)
+```
+
+
+**P(X>x and Y>y) = 0.3735**
+
+**P(X>x)P(Y>y) = 0.5 \* 0.75  = 0.375** 
+
+
+
+## Independence
+Check to see if independence holds by using Fisher’s Exact Test and the Chi Square Test.  What is the difference between the two? Which is most appropriate?
+
+
+### Fisher’s Exact Test
+
+```{r fisher, echo=TRUE}
+fisher.test(table(X>x,Y>y))
+```
+
+Fisher test shows a large p-value 0.50 so we fail to to reject null hypothesis. 
+
+### Chi Square Test
+
+```{r chisquare, echo=TRUE}
+chisq.test(table(X>x,Y>y))
+```
+
+Chi Square Test also shows a large p-value 0.50 so we fail to to reject null hypothesis.
+
+Therefore, we fail to reject the null hypothesis and conclude two events are independent. Fisher’s Exact Test is used when sample size is small. The Chi Square Test is used when there are large values in the contingency table and tests contingency table tests and goodness-of-fit tests. In this case, there are large value, so the Chi-Square Test is most appropriate. Fisher’s exact test seems more appropriate here.
+
+
+# Problem 2
+
+You are to register for Kaggle.com (free) and compete in the House Prices: Advanced Regression Techniques competition.  https://www.kaggle.com/c/house-prices-advanced-regression-techniques. I want you to do the following.
+
+
+```{r read-data, echo=TRUE}
+
+# read data from github
+train_URL <- "https://raw.githubusercontent.com/amit-kapoor/data605/master/FinalProject/train.csv"
+test_URL <- "https://raw.githubusercontent.com/amit-kapoor/data605/master/FinalProject/test.csv"
+
+# create data frame for training and testing dataset
+train <- read.csv(train_URL)
+test <- read.csv(test_URL)
+
+```
+
+
+
+## Descriptive and Inferential Statistics. 
+Provide univariate descriptive statistics and appropriate plots for the training data set.  Provide a scatterplot matrix for at least two of the independent variables and the dependent variable. Derive a correlation matrix for any three quantitative variables in the dataset.  Test the hypotheses that the correlations between each pairwise set of variables is 0 and provide an 80% confidence interval.  Discuss the meaning of your analysis. Would you be worried about familywise error? Why or why not?
+
+
+Lets first explore the training dataset. It has 81 columns and 1460 rows.
+
+```{r dim-train, echo=TRUE}
+# training dataset dimension
+dim(train)
+```
+
+
+```{r glimpse-train, echo=TRUE}
+# get glimpse of data
+glimpse(train)
+```
+
+In next step, Id column is removed from dataset and see the summary.
+
+```{r summary, echo=TRUE}
+# remove column Id from train dataset
+train <- train %>% select(-Id)
+
+summary(train)
+```
+
+Next is to explore the distribution mainly for the quantitative variables. We will plot histograms of training variables.
+
+```{r plot-hist, echo=TRUE}
+
+# plot hist for training dataset
+plot_histogram(train)
+```
+
+Now, we have better understanding of the data distribution. Let’s plot the SalePrice (final response variable) against all other variables.
+
+
+```{r plot-box, echo=TRUE}
+# boxplot for train dataset
+plot_boxplot(train, by="SalePrice")
+```
+
+
+### Provide a scatterplot matrix for at least two of the independent variables and the dependent variable
+
+In this step, we will plot scatter plots for all variables against the response variable.
+
+```{r scatter, echo=TRUE}
+# scatter plot
+plot_scatterplot(train, by = "SalePrice")
+```
+
+
+### Derive a correlation matrix for any three quantitative variables in the dataset. 
+
+I have chosen GrLivArea, TotalBsmtSF, SalePrice from the dataset for correlation matrix.
+
+```{r corr-matrix, echo=TRUE}
+
+# correlation matrix for GrLivArea, TotalBsmtSF, SalePrice
+corr_matrix <- train %>% 
+  select(GrLivArea, TotalBsmtSF, SalePrice) %>% 
+  cor() %>% 
+  as.matrix()
+
+corr_matrix
+```
+
+In the next step, we will use ggpairs() function from the GGally package that allows to build a scatterplot matrix. It draws scatterplots of each pair of numeric variable on the left part of the figure. The right part has Pearson correlation and the diagonal contains variable distribution.
+
+```{r pair-scatter, echo=TRUE}
+train %>% 
+  select(GrLivArea, TotalBsmtSF, SalePrice) %>%
+  ggpairs(title = "Paiwise scatter plots")
+```
+
+
+Lets see correlation matrix plot using ggcorr(). The ggcorr() function visualizes the correlation of each pair of variable as a square. As shown below it shows strong correlation.
+
+```{r corr-plot, echo=TRUE}
+train %>% 
+  select(GrLivArea, TotalBsmtSF, SalePrice) %>%
+  ggcorr(label = TRUE)
+```
+
+### Test the hypotheses that the correlations between each pairwise set of variables is 0 and provide an 80% confidence interval. Discuss the meaning of your analysis.
+
+```{r cor-test1, echo=TRUE}
+# Correlation Test for GrLivArea and TotalBsmtSF
+cor.test(train$GrLivArea, train$TotalBsmtSF, conf.level = 0.8)
+```
+
+```{r cor-test2, echo=TRUE}
+# Correlation Test for GrLivArea and SalePrice
+cor.test(train$GrLivArea, train$SalePrice, conf.level = 0.8)
+```
+
+
+```{r cor-test3, echo=TRUE}
+# Correlation Test for TotalBsmtSF and SalePrice
+cor.test(train$TotalBsmtSF, train$SalePrice, conf.level = 0.8)
+```
+
+In all three instances above, we have taken an 80 percent confidence interval. Seeing the smaller p-value for all  three iterations of testing, we can reject the the null hypothesis and conclude that the true correlation is not 0 for the selected variables.
+
+
+### Would you be worried about familywise error? Why or why not?
+
+The familywise error rate (FWE or FWER) is the probability of a coming to at least one false conclusion in a series of hypothesis tests . In other words, it’s the probability of making at least one Type I Error. The term “familywise” error rate comes from family of tests, which is the technical definition for a series of tests on data
+
+In this case, I am not much worried about familywise error since the comparision are comparitively few.
+
+```{r fwer, echo=TRUE}
+print(paste0("Familywise error rate is ", (1 - (1 - .05)^3)))
+```
+
+
+## Linear Algebra and Correlation. 
+Invert your correlation matrix from above. (This is known as the precision matrix and contains variance inflation factors on the diagonal.) Multiply the correlation matrix by the precision matrix, and then multiply the precision matrix by the correlation matrix. Conduct LU decomposition on the matrix.
+
+
+
+```{r print-corr-matrix, echo=TRUE}
+# corr_matrix from above
+corr_matrix
+```
+
+
+```{r inv-corr-mat, echo=TRUE}
+# Invert correlation matrix
+preci_matrix <- solve(corr_matrix)
+preci_matrix
+```
+
+```{r mul-1, echo=TRUE}
+# multiply the correlation matrix by the precision matrix
+round(corr_matrix %*% preci_matrix)
+```
+
+```{r mul-2, echo=TRUE}
+# multiply the precision matrix by the correlation matrix
+round(preci_matrix %*% corr_matrix )
+```
+
+```{r lu, echo=TRUE}
+# conduct LU decomposition on the matrix
+lu_corr_mat <- lu(corr_matrix)
+lu_corr_mat
+```
+
+```{r lower, echo=TRUE}
+# Lower 
+lower_corr <- expand(lu_corr_mat)$L
+lower_corr
+```
+
+```{r upper, echo=TRUE}
+# Upper 
+upper_corr <- expand(lu_corr_mat)$U
+upper_corr
+```
+
+```{r mul-lo-up, echo=TRUE}
+lower_corr %*% upper_corr
+```
+
+**It comes out this is the original correlation matrix when L and U multiplied**
+
+
+## Calculus-Based Probability & Statistics.
+Many times, it makes sense to fit a closed form distribution to data.  Select a variable in the Kaggle.com training dataset that is skewed to the right, shift it so that the minimum value is absolutely above zero if necessary.  Then load the MASS package and run fitdistr to fit an exponential probability density function.  (See  https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ).  Find the optimal value of $\lambda$ for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, $\lambda$)).  Plot a histogram and compare it with a histogram of your original variable. Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF). Also generate a 95% confidence interval from the empirical data, assuming normality.  Finally, provide the empirical 5th percentile and 95th percentile of the data.  Discuss.
+
+
+In the given training dataset, GrLivArea is a variable with a right skewed.
+
+```{r hist-GrLivArea, echo=TRUE}
+# plot histogram GrLivArea
+plot_histogram(train$GrLivArea)
+```
+
+
+```{r summ, echo=TRUE}
+# summary GrLivArea
+summary(train$GrLivArea)
+```
+
+
+**We do not need to shift the variable GrLivArea since it does not have a minimum of zero.**
+
+### Then load the MASS package and run fitdistr to fit an exponential probability density function. (See https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ).
+
+```{r warning=FALSE, message=FALSE}
+# load MASS package
+library(MASS)
+
+# run fitdistr to fit an exponential probability density function
+distr <-fitdistr(train$GrLivArea, densfun = 'exponential')
+distr
+```
+
+### Find the optimal value of λ for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, λ)). Plot a histogram and compare it with a histogram of your original variable
+
+```{r lambda, echo=TRUE}
+# lambda
+lamda <- distr$estimate
+
+# take 1000 samples
+exp_dist <- rexp(1000, lamda)
+
+# summary
+summary(exp_dist)
+```
+
+
+```{r hist-exp, echo=TRUE}
+# plot histogram of exp_dist
+plot_histogram(exp_dist, title ="Exponential Distribution of GrLivArea")
+```
+
+
+```{r hist-orig, echo=TRUE}
+# plot histogram of original GrLivArea
+plot_histogram(train$GrLivArea, title ="Original Distribution of GrLivArea")
+```
+
+### Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF). Also generate a 95% confidence interval from the empirical data, assuming normality. Finally, provide the empirical 5th percentile and 95th percentile of the data. Discuss.
+
+```{r perc-5, echo=TRUE}
+# find the 5th percentile
+qexp(0.05, rate=lamda)
+```
+
+
+```{r perc-95, echo=TRUE}
+# find the 95th percentile
+qexp(0.95, rate=lamda)
+```
+
+```{r ci, echo=TRUE}
+# generate a 95% confidence interval from the empirical data
+CI(train$GrLivArea, ci=0.95) 
+```
+
+
+```{r perc-5-95, echo=TRUE}
+# empirical 5th percentile and 95th percentile of the data
+quantile(train$GrLivArea, c(.05, .95))
+```
+
+
+**We see that the values of exponential model are more skewed then of the given data set which appeared in the corresponding histograms as well.**
+
+
+## Modeling.  
+Build some type of multiple regression  model and submit your model to the competition board.  Provide your complete model summary and results with analysis.  Report your Kaggle.com user name and score.
+
+First lets just see how are final response variable SalePrice is close to normal distribution.
+
+```{r qq, echo=TRUE}
+# qq plot for response variable SalePrice
+ggqqplot(train$SalePrice)
+```
+
+
+```{r}
+# SalePrice histogram
+plot_histogram(train$SalePrice)
+```
+
+It seems that no major transformation needed to be done for response variable.
+
+We examined earlier heat map based off the correlation matrix. We will now go through a process that can identify what predictors have significant correlations with the response variable. Lets see the correlation of predictors (non numeric) with response variable.
+
+
+```{r corr, echo=TRUE}
+# correlation with response variable
+cor(Filter(is.numeric, train[-80]), train$SalePrice)
+```
+
+Now we will take variables with strong positive correlations greater than 0.6. Using backward elimination technique to arrive at the optimal features to be included to our model.
+
+```{r}
+train_sub <- train %>%
+  dplyr::select(OverallQual, TotalBsmtSF, X1stFlrSF, GrLivArea, GarageCars, GarageArea, SalePrice)
+
+mod <- lm(SalePrice ~., data = train_sub)
+summary(mod)
+```
+
+
+Seeing summary of the model p-value adjusted R squared value of .76 which means model shows 76% of the variability in the data which is quite good. Next we will plot model residuals and qq plot.
+
+```{r hist-resi, echo=TRUE}
+hist(mod$residuals, xlab = "Residuals", ylab = "", breaks = 100)
+```
+
+The residuals seem to follow a close to normal distribution.
+
+```{r}
+mod %>% 
+  ggplot(aes(sample = resid(mod))) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Q-Q Plot") +
+  theme_minimal()
+```
+
+Finally lets apply model to our test data and make predictions.
+
+```{r prediction, echo=TRUE}
+# predict with test dataset
+test_results <- predict(mod, test)
+
+prediction <- data.frame(Id = test[,"Id"],  SalePrice = test_results)
+prediction[prediction < 0] <- 0
+prediction <- replace(prediction, is.na(prediction), 0)
+
+```
+
+```{r write-csv, echo=TRUE}
+# write to csv
+write.csv(prediction, file = "AKapoor_kaggle_submit.csv", row.names = FALSE)
+```
+
+
+### Kaggle Submission and Score
+
+**Display Name**: Amit Kapoor
+**User Name**: amitkpr
+**Kaggle score**: 0.77092
+
+```{r pressure, echo=FALSE, fig.cap="Kaggle submission", out.width = '100%'}
+knitr::include_graphics("AKapoor_Kaggle_score.png")
+```
+
+## References 
+
+[https://www.statisticshowto.com/familywise-error-rate/](https://www.statisticshowto.com/familywise-error-rate/)
+
+
+
+
