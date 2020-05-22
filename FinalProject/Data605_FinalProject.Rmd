@@ -215,7 +215,7 @@ In next step, Id column is removed from dataset and see the summary.
 
 ```{r summary, echo=TRUE}
 # remove column Id from train dataset
-train <- train %>% select(-Id)
+train <- train %>% dplyr::select(-Id)
 
 summary(train)
 ```
@@ -255,7 +255,7 @@ I have chosen GrLivArea, TotalBsmtSF, SalePrice from the dataset for correlation
 
 # correlation matrix for GrLivArea, TotalBsmtSF, SalePrice
 corr_matrix <- train %>% 
-  select(GrLivArea, TotalBsmtSF, SalePrice) %>% 
+  dplyr::select(GrLivArea, TotalBsmtSF, SalePrice) %>% 
   cor() %>% 
   as.matrix()
 
@@ -266,7 +266,7 @@ In the next step, we will use ggpairs() function from the GGally package that al
 
 ```{r pair-scatter, echo=TRUE}
 train %>% 
-  select(GrLivArea, TotalBsmtSF, SalePrice) %>%
+  dplyr::select(GrLivArea, TotalBsmtSF, SalePrice) %>%
   ggpairs(title = "Paiwise scatter plots")
 ```
 
@@ -275,7 +275,7 @@ Lets see correlation matrix plot using ggcorr(). The ggcorr() function visualize
 
 ```{r corr-plot, echo=TRUE}
 train %>% 
-  select(GrLivArea, TotalBsmtSF, SalePrice) %>%
+  dplyr::select(GrLivArea, TotalBsmtSF, SalePrice) %>%
   ggcorr(label = TRUE)
 ```
 
@@ -528,6 +528,11 @@ write.csv(prediction, file = "AKapoor_kaggle_submit.csv", row.names = FALSE)
 ```{r pressure, echo=FALSE, fig.cap="Kaggle submission", out.width = '100%'}
 knitr::include_graphics("AKapoor_Kaggle_score.png")
 ```
+
+## YouTube Link for Presentation
+
+https://youtu.be/HhRPv-VyCoQ
+
 
 ## References 
 
